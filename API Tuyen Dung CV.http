@@ -1,0 +1,6 @@
+@API_Tuyen_Dung_CV_HostAddress = http://localhost:5006
+
+GET {{API_Tuyen_Dung_CV_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
