@@ -3,6 +3,7 @@
     public class Company
     {
         public int ID { get; set; }
+        public int accountID { get; set; }
         public string name { get; set; }
         public string link { get; set; }
         public string address { get; set; }

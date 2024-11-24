@@ -108,5 +108,6 @@ namespace API_Tuyen_Dung_CV.Controllers
             }
             return new JsonResult("Delete Successfully!");
         }
+
     }
 }

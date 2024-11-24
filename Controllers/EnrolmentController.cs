@@ -41,8 +41,8 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpPost]
         public JsonResult Post(Enrolment erm)
         {
-            string query = @"INSERT INTO Enrolment(job, account, cv)
-                            VALUES(@job, @account, @cv)";
+            string query = @"INSERT INTO Enrolment(job, account, cv, state)
+                            VALUES(@job, @account, @cv, @state)";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
@@ -51,6 +51,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
+                    myCommand.Parameters.AddWithValue("@state", erm.state);
                     myCommand.Parameters.AddWithValue("@job", erm.job);
                     myCommand.Parameters.AddWithValue("@account", erm.account);
                     myCommand.Parameters.AddWithValue("@cv", erm.cv);
@@ -70,6 +71,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                             SET job = @job,
                                 account = @account,
                                 cv = @cv,
+                                state = @state
                             WHERE ID = @id";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
@@ -83,6 +85,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                     myCommand.Parameters.AddWithValue("@job", erm.job);
                     myCommand.Parameters.AddWithValue("@account", erm.account);
                     myCommand.Parameters.AddWithValue("@cv", erm.cv);
+                    myCommand.Parameters.AddWithValue("@state", erm.state);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();

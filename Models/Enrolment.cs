@@ -6,6 +6,7 @@
         public int job { get; set; }
         public int account { get; set; }
         public string cv { get; set; }
+        public string state { get; set; }
 
     }
 }

@@ -41,8 +41,8 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpPost]
         public JsonResult Post(Company cpn)
         {
-            string query = @"INSERT INTO Company(name, link, address, extent, logo)
-                            VALUES(@name, @link, @address, @extent, @logo)";
+            string query = @"INSERT INTO Company(accountID, name, link, address, extent, logo)
+                            VALUES(@accountID, @name, @link, @address, @extent, @logo)";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
@@ -51,6 +51,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
+                    myCommand.Parameters.AddWithValue("@accountID", cpn.accountID);
                     myCommand.Parameters.AddWithValue("@name", cpn.name);
                     myCommand.Parameters.AddWithValue("@link", cpn.link);
                     myCommand.Parameters.AddWithValue("@address", cpn.address);
@@ -69,7 +70,8 @@ namespace API_Tuyen_Dung_CV.Controllers
         public JsonResult Put(Company cpn)
         {
             string query = @"UPDATE Company
-                            SET name = @name,
+                            SET accountID = @accountID,
+                                name = @name,
                                 link = @link,
                                 address = @address,
                                 extent = @extent,
@@ -84,6 +86,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
                     myCommand.Parameters.AddWithValue("@id", cpn.ID);
+                    myCommand.Parameters.AddWithValue("@accountID", cpn.accountID);
                     myCommand.Parameters.AddWithValue("@name", cpn.name);
                     myCommand.Parameters.AddWithValue("@link", cpn.link);
                     myCommand.Parameters.AddWithValue("@address", cpn.address);

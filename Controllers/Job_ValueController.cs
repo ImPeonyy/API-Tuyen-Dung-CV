@@ -41,8 +41,8 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpPost]
         public JsonResult Post(Job_Value jv)
         {
-            string query = @"INSERT INTO Job_Value(min_salary, max_salary, min_exp, max_exp)
-                            VALUES(@min_salary, @max_salary, @min_exp, @max_exp)";
+            string query = @"INSERT INTO Job_Value(ID, min_salary, max_salary, min_exp, max_exp)
+                            VALUES(@id, @min_salary, @max_salary, @min_exp, @max_exp)";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
@@ -51,6 +51,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
+                    myCommand.Parameters.AddWithValue("@id", jv.ID);
                     myCommand.Parameters.AddWithValue("@min_salary", jv.min_salary);
                     myCommand.Parameters.AddWithValue("@max_salary", jv.max_salary);
                     myCommand.Parameters.AddWithValue("@min_exp", jv.min_exp);
@@ -116,6 +117,29 @@ namespace API_Tuyen_Dung_CV.Controllers
                 }
             }
             return new JsonResult("Delete Successfully!");
+        }
+
+        [HttpGet("{id}")]
+        public JsonResult Get(int id)
+        {
+            string query = @"SELECT * FROM Job_Value 
+                            WHERE ID = @id";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@id", id);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
         }
     }
 }

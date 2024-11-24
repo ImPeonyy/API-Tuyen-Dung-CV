@@ -16,5 +16,6 @@ namespace API_Tuyen_Dung_CV.Models
         public string welfare { get; set;}
         public string job_title { get; set; }
         public int job_type { get; set;}
+        public int state { get; set; }
     }
 }

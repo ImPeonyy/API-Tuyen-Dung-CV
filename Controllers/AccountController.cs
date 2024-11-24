@@ -41,8 +41,8 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpPost]
         public JsonResult Post(Account acc)
         {
-            string query = @"INSERT INTO Account(username, password, name, email, phone_number, role)
-                            VALUES(@username, @password, @name, @email, @phone_number, @role)";
+            string query = @"INSERT INTO Account(password, name, email, phone_number, role)
+                            VALUES(@password, @name, @email, @phone_number, @role)";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
@@ -51,7 +51,6 @@ namespace API_Tuyen_Dung_CV.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
-                    myCommand.Parameters.AddWithValue("@username", acc.username);
                     myCommand.Parameters.AddWithValue("@password", acc.password);
                     myCommand.Parameters.AddWithValue("@name", acc.name);
                     myCommand.Parameters.AddWithValue("@email", acc.email);
@@ -70,8 +69,7 @@ namespace API_Tuyen_Dung_CV.Controllers
         public JsonResult Put(Account acc)
         {
             string query = @"UPDATE Account
-                            SET username = @username,
-                                password = @password,
+                            SET password = @password,
                                 name = @name,
                                 email = @email,
                                 phone_number = @phone_number,
@@ -86,7 +84,6 @@ namespace API_Tuyen_Dung_CV.Controllers
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
                     myCommand.Parameters.AddWithValue("@id", acc.ID);
-                    myCommand.Parameters.AddWithValue("@username", acc.username);
                     myCommand.Parameters.AddWithValue("@password", acc.password);
                     myCommand.Parameters.AddWithValue("@name", acc.name);
                     myCommand.Parameters.AddWithValue("@email", acc.email);
