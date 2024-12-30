@@ -11,9 +11,16 @@ namespace API_Tuyen_Dung_CV.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\img\company_logo";
         public CompanyController(IConfiguration configuration)
         {
             _configuration = configuration;
+
+            // Tạo thư mục nếu chưa tồn tại
+            if (!Directory.Exists(_storageFolder))
+            {
+                Directory.CreateDirectory(_storageFolder);
+            }
         }
 
 
@@ -39,10 +46,29 @@ namespace API_Tuyen_Dung_CV.Controllers
         }
 
         [HttpPost]
-        public JsonResult Post(Company cpn)
+        public async Task<IActionResult> Post([FromForm] Company cpn)
         {
-            string query = @"INSERT INTO Company(accountID, name, link, address, extent, logo)
-                            VALUES(@accountID, @name, @link, @address, @extent, @logo)";
+
+            // Kiểm tra tệp tải lên
+            if (cpn.file == null || cpn.file.Length == 0)
+            {
+                return BadRequest("Không có tệp tải lên.");
+            }
+
+            // Tạo tên tệp duy nhất để tránh trùng lặp
+            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(cpn.file.FileName);
+
+            // Đường dẫn lưu tệp
+            var filePath = Path.Combine(_storageFolder, uniqueFileName);
+
+            // Lưu tệp vào thư mục lưu trữ
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await cpn.file.CopyToAsync(stream);
+            }
+
+            string query = @"INSERT INTO Company(accountID, company_name, link, address, extent, logo)
+                            VALUES(@accountID, @company_name, @link, @address, @extent, @logo)";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
@@ -52,11 +78,11 @@ namespace API_Tuyen_Dung_CV.Controllers
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
                     myCommand.Parameters.AddWithValue("@accountID", cpn.accountID);
-                    myCommand.Parameters.AddWithValue("@name", cpn.name);
+                    myCommand.Parameters.AddWithValue("@company_name", cpn.company_name);
                     myCommand.Parameters.AddWithValue("@link", cpn.link);
                     myCommand.Parameters.AddWithValue("@address", cpn.address);
                     myCommand.Parameters.AddWithValue("@extent", cpn.extent);
-                    myCommand.Parameters.AddWithValue("@logo", cpn.logo);
+                    myCommand.Parameters.AddWithValue("@logo", filePath);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
@@ -71,7 +97,7 @@ namespace API_Tuyen_Dung_CV.Controllers
         {
             string query = @"UPDATE Company
                             SET accountID = @accountID,
-                                name = @name,
+                                company_name = @company_name,
                                 link = @link,
                                 address = @address,
                                 extent = @extent,
@@ -87,7 +113,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                 {
                     myCommand.Parameters.AddWithValue("@id", cpn.ID);
                     myCommand.Parameters.AddWithValue("@accountID", cpn.accountID);
-                    myCommand.Parameters.AddWithValue("@name", cpn.name);
+                    myCommand.Parameters.AddWithValue("@company_name", cpn.company_name);
                     myCommand.Parameters.AddWithValue("@link", cpn.link);
                     myCommand.Parameters.AddWithValue("@address", cpn.address);
                     myCommand.Parameters.AddWithValue("@extent", cpn.extent);
@@ -122,6 +148,28 @@ namespace API_Tuyen_Dung_CV.Controllers
                 }
             }
             return new JsonResult("Delete Successfully!");
+        }
+
+        [HttpGet("{id}")]
+        public JsonResult Get(int id)
+        {
+            string query = "SELECT * FROM Company WHERE accountID = @accID";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@accID", id);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
         }
     }
 }

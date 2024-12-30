@@ -120,5 +120,78 @@ namespace API_Tuyen_Dung_CV.Controllers
             }
             return new JsonResult("Delete Successfully!");
         }
+
+        [Route("CheckEmailExists")]
+        [HttpGet]
+        public JsonResult CheckEmailExists(string email)
+        {
+            string query = @"SELECT COUNT(*) AS count
+                            FROM Account 
+                            WHERE email = @email";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@email", email);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
+        [Route("CheckPhoneNumberExists")]
+        [HttpGet]
+        public JsonResult CheckPhoneNumberExists(string phone_number)
+        {
+            string query = @"SELECT COUNT(*) AS count 
+                            FROM Account 
+                            WHERE phone_number = @phone_number";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@phone_number", phone_number);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
+        [Route("GetAccByEmail")]
+        [HttpGet]
+        public JsonResult GetAccByEmail(string email)
+        {
+            string query = "SELECT * FROM Account WHERE email=@Email";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@Email", email);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
     }
 }

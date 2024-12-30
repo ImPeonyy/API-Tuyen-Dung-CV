@@ -3,6 +3,6 @@
     public class Province
     {
         public int ID { get; set; }
-        public string name { get; set; }
+        public string province_name { get; set; }
     }
 }

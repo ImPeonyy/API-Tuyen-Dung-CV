@@ -149,7 +149,6 @@ namespace API_Tuyen_Dung_CV.Controllers
                             ON Job.ID = Job_Value.ID
                             Full OUTER JOIN Company
                             ON Job.company = Company.ID
-                            WHERE Job.company = Company.ID
                             ORDER BY Job.date_expired DESC";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
@@ -159,6 +158,35 @@ namespace API_Tuyen_Dung_CV.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
+        [HttpGet("GetJobIndex/{id}")]
+        public JsonResult GetJobIndexByID(int id)
+        {
+            string query = @"SELECT *
+                            FROM Job
+                            Full OUTER JOIN Job_Value
+                            ON Job.ID = Job_Value.ID
+                            Full OUTER JOIN Company
+                            ON Job.company = Company.ID
+                            WHERE Job.company = @id
+                            ORDER BY Job.date_expired DESC";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@id", id);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
@@ -201,14 +229,37 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpGet]
         public JsonResult GetLocationDesc()
         {
-            string query = @"SELECT COUNT(Job.location) AS count, Province.name AS name 
+            string query = @"SELECT COUNT(Job.location) AS count, Province.province_name as name
                             FROM Job
                             FULL OUTER JOIN Province
                             ON Job.location = Province.ID
-                            GROUP BY Province.name
+                            GROUP BY Province.province_name
                             ORDER BY count DESC
                             OFFSET 0 ROWS
                             FETCH NEXT 6 ROWS ONLY;";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
+        [Route("Getjoblist")]
+        [HttpGet]
+        public JsonResult Getjoblist()
+        {
+            string query = "SELECT Job.ID, Job.title, Company.name AS CompanyName, Province.name AS Location, Job.address,Job.job_des AS JobDescription, Job.job_req AS JobRequirements, Job.date_expired AS ExpiryDate, Job.welfare AS JobWelfare, Job.job_title AS JobTitleDescription, Type_of_Job.type_name, Job_Value.min_salary AS MinSalary, Job_Value.max_salary AS MaxSalary, Job_Value.min_exp AS MinExperience, Job_Value.max_exp AS MaxExperience FROM Job JOIN Company ON Job.company = Company.ID JOIN Province ON Job.location = Province.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID JOIN Job_Value ON Job.ID = Job_Value.ID";
+
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;

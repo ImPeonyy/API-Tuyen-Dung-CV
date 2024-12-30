@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,8 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Enable CORS
 builder.Services.AddCors(c =>
 {
-    c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin()
-    .AllowAnyHeader().AllowAnyMethod());
+    c.AddPolicy("AllowAngularApp", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") // Angular app's origin
+              .AllowAnyMethod()                   // Allow any HTTP method (GET, POST, etc.)
+              .AllowAnyHeader();                  // Allow any HTTP header
+    });
 });
 
 // JSON Serializer

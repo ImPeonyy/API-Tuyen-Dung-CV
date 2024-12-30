@@ -72,7 +72,7 @@ namespace API_Tuyen_Dung_CV.Controllers
                             SET min_salary = @min_salary,
                                 max_salary = @max_salary,
                                 min_exp = @min_exp,
-                                max_exp = @max_exp,
+                                max_exp = @max_exp
                             WHERE ID = @id";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
