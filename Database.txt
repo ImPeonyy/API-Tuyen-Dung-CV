@@ -1,0 +1,114 @@
+Create Database TuyenDungCV
+use TuyenDungCV
+
+Create Table Account (
+	ID int primary key identity(1, 1),
+	password varchar(50) not null,
+	name nvarchar(max) not null,
+	email varchar(100) unique not null,
+	phone_number varchar(10) not null,
+	role int not null 
+	/* -1: Employer; 
+		0: Admin; 
+		1: Employee*/
+)
+
+Create Table Company (
+	ID int primary key identity(1, 1),
+	accountID int not null,
+	company_name nvarchar(500) unique not null,
+	link varchar(500) not null,
+	address nvarchar(500) not null,
+	extent int not null,
+	logo text
+)
+
+Create Table Enrolment (
+	ID int primary key identity(1, 1),
+	job int not null,
+	account int not null,
+	cv text not null,
+	rank int not null,
+	state int not null
+	/* -1: Decline; 
+		0: Pending; 
+		1: Approve*/
+)
+
+Create Table Job (
+	ID int primary key identity(1, 1),
+	title nvarchar(500) not null,
+	company int not null,
+	location int not null,
+	address nvarchar(500) not null,
+	job_des nvarchar(max) not null,
+	job_req nvarchar(max) not null,
+	date_expired date not null,
+	welfare nvarchar(max) not null,
+	job_title nvarchar(500) not null,
+	job_type int not null,
+	state int not null
+	/* -1: Decline; 
+		0: Pending; 
+		1: Approve*/
+)
+
+Create Table Job_Value (
+	ID int primary key,
+	min_salary int not null,
+	max_salary int not null,
+	min_exp int not null,
+	max_exp int not null
+)
+
+Create Table Province (
+	ID int primary key identity(1, 1),
+	province_name nvarchar(200) unique not null
+)
+
+Create Table Type_of_Job (
+	ID int primary key identity(1, 1),
+	type_name nvarchar(200) unique not null
+)
+
+ALTER TABLE Enrolment 
+ADD CONSTRAINT fk_account
+FOREIGN KEY (account)  
+REFERENCES Account (ID) 
+ON DELETE NO ACTION ON UPDATE CASCADE;
+
+ALTER TABLE Enrolment 
+ADD CONSTRAINT fk_job
+FOREIGN KEY (job)  
+REFERENCES Job (ID) 
+ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE Job 
+ADD CONSTRAINT fk_province
+FOREIGN KEY (location)  
+REFERENCES Province (ID) 
+ON UPDATE CASCADE;
+
+ALTER TABLE Job 
+ADD CONSTRAINT fk_type_job
+FOREIGN KEY (job_type)  
+REFERENCES Type_of_Job (ID) 
+ON UPDATE CASCADE;
+
+ALTER TABLE Job 
+ADD CONSTRAINT fk_company
+FOREIGN KEY (company)  
+REFERENCES Company (ID) 
+ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE Job_Value 
+ADD CONSTRAINT fk_job_value
+FOREIGN KEY (ID)  
+REFERENCES Job (ID) 
+ON DELETE CASCADE ON UPDATE CASCADE;
+ 
+ALTER TABLE Company 
+ADD CONSTRAINT fk_account_company
+FOREIGN KEY (accountID)  
+REFERENCES Account (ID) 
+ON DELETE CASCADE

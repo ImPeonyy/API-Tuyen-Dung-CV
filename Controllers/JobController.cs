@@ -149,6 +149,9 @@ namespace API_Tuyen_Dung_CV.Controllers
                             ON Job.ID = Job_Value.ID
                             Full OUTER JOIN Company
                             ON Job.company = Company.ID
+                            Full OUTER JOIN Province
+                            ON Job.location = Province.ID
+                            WHERE Job.date_expired >= GETDATE()
                             ORDER BY Job.date_expired DESC";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
@@ -176,6 +179,8 @@ namespace API_Tuyen_Dung_CV.Controllers
                             ON Job.ID = Job_Value.ID
                             Full OUTER JOIN Company
                             ON Job.company = Company.ID
+                            Full OUTER JOIN Province
+                            ON Job.location = Province.ID
                             WHERE Job.company = @id
                             ORDER BY Job.date_expired DESC";
             DataTable table = new DataTable();
@@ -258,7 +263,7 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpGet]
         public JsonResult Getjoblist()
         {
-            string query = "SELECT Job.ID, Job.title, Company.name AS CompanyName, Province.name AS Location, Job.address,Job.job_des AS JobDescription, Job.job_req AS JobRequirements, Job.date_expired AS ExpiryDate, Job.welfare AS JobWelfare, Job.job_title AS JobTitleDescription, Type_of_Job.type_name, Job_Value.min_salary AS MinSalary, Job_Value.max_salary AS MaxSalary, Job_Value.min_exp AS MinExperience, Job_Value.max_exp AS MaxExperience FROM Job JOIN Company ON Job.company = Company.ID JOIN Province ON Job.location = Province.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID JOIN Job_Value ON Job.ID = Job_Value.ID";
+            string query = "SELECT Job.ID, Job.title, Company.company_name AS CompanyName, Province.province_name AS Location, Job.address,Job.job_des AS JobDescription, Job.job_req AS JobRequirements, Job.date_expired AS ExpiryDate, Job.welfare AS JobWelfare, Job.job_title AS JobTitleDescription, Type_of_Job.type_name, Job_Value.min_salary AS MinSalary, Job_Value.max_salary AS MaxSalary, Job_Value.min_exp AS MinExperience, Job_Value.max_exp AS MaxExperience FROM Job JOIN Company ON Job.company = Company.ID JOIN Province ON Job.location = Province.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID JOIN Job_Value ON Job.ID = Job_Value.ID";
 
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
@@ -275,6 +280,32 @@ namespace API_Tuyen_Dung_CV.Controllers
                 }
             }
             return new JsonResult(table);
+        }
+
+        [Route("Putstate")]
+        [HttpPut]
+        public JsonResult Putstate(Job j)
+        {
+            string query = @"UPDATE Job
+                    SET state = @state
+                    WHERE ID = @id";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@id", j.ID);
+                    myCommand.Parameters.AddWithValue("@state", j.state);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult("Update Successfully!");
         }
     }
 }

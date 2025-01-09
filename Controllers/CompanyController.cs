@@ -11,7 +11,7 @@ namespace API_Tuyen_Dung_CV.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\img\company_logo";
+        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\company_logo";
         public CompanyController(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -48,23 +48,22 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] Company cpn)
         {
-
+            var filePath = "./assets/img/company_logo/default-company-logo.png";
             // Kiểm tra tệp tải lên
-            if (cpn.file == null || cpn.file.Length == 0)
+            if (cpn.file != null || cpn.file.Length > 0)
             {
-                return BadRequest("Không có tệp tải lên.");
-            }
+                // Tạo tên tệp duy nhất để tránh trùng lặp
+                string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(cpn.file.FileName);
 
-            // Tạo tên tệp duy nhất để tránh trùng lặp
-            string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(cpn.file.FileName);
+                // Đường dẫn lưu tệp
+                var fileSave = Path.Combine(_storageFolder, uniqueFileName);
+                filePath = "./assets/img/company_logo/" + uniqueFileName;
 
-            // Đường dẫn lưu tệp
-            var filePath = Path.Combine(_storageFolder, uniqueFileName);
-
-            // Lưu tệp vào thư mục lưu trữ
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await cpn.file.CopyToAsync(stream);
+                // Lưu tệp vào thư mục lưu trữ
+                using (var stream = new FileStream(fileSave, FileMode.Create))
+                {
+                    await cpn.file.CopyToAsync(stream);
+                }
             }
 
             string query = @"INSERT INTO Company(accountID, company_name, link, address, extent, logo)

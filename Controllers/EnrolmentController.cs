@@ -85,7 +85,7 @@ namespace API_Tuyen_Dung_CV.Controllers
             string uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(erm.file.FileName);
 
             // Đường dẫn lưu tệp
-            var filePath = Path.Combine(_storageFolder, uniqueFileName);
+            var filePath = @"D:/Study/WorkSpace/Job_Recruitment/src/assets/cv_storage/" + uniqueFileName;
 
             // Lưu tệp vào thư mục lưu trữ
             using (var stream = new FileStream(filePath, FileMode.Create))
@@ -184,8 +184,9 @@ namespace API_Tuyen_Dung_CV.Controllers
         [HttpGet]
         public JsonResult GetListEnrolment()
         {
-            string query = @"select * from Enrolment join Account on Enrolment.account = Account.ID
-                           join Job on Enrolment.job = Job.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID join Company on job.company = Company.ID";
+            string query = "select Enrolment.ID, Enrolment.cv, Enrolment.state, Account.name as Accountname, Account.email as Accountemail, Account.phone_number as Accountphone_number," +
+                           "\r\njob.title as jobtitle, Job.job_des AS JobDescription, company.company_name ,Type_of_Job.type_name\r\nfrom Enrolment join Account on Enrolment.account = Account.ID\r\n " +
+                           "join Job on Enrolment.job = Job.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID join Company on job.company = Company.ID";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
