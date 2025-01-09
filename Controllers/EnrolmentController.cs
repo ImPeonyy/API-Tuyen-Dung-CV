@@ -13,7 +13,7 @@ namespace API_Tuyen_Dung_CV.Controllers
     public class EnrolmentController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\img\cv_storage";
+        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\cv_storage";
         public EnrolmentController(IConfiguration configuration)
         {
             _configuration = configuration;
@@ -180,13 +180,13 @@ namespace API_Tuyen_Dung_CV.Controllers
             return new JsonResult("Delete Successfully!");
         }
 
-        [Route("GetListEnrolment")]
+        [Route("GetListEnrolmentByAccount/{id}")]
         [HttpGet]
-        public JsonResult GetListEnrolment()
+        public JsonResult GetListEnrolmentByAccount(int id)
         {
             string query = "select Enrolment.ID, Enrolment.cv, Enrolment.state, Account.name as Accountname, Account.email as Accountemail, Account.phone_number as Accountphone_number," +
                            "\r\njob.title as jobtitle, Job.job_des AS JobDescription, company.company_name ,Type_of_Job.type_name\r\nfrom Enrolment join Account on Enrolment.account = Account.ID\r\n " +
-                           "join Job on Enrolment.job = Job.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID join Company on job.company = Company.ID";
+                           "join Job on Enrolment.job = Job.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID join Company on job.company = Company.ID WHERE Enrolment.account = @id";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
             SqlDataReader myReader;
@@ -195,6 +195,35 @@ namespace API_Tuyen_Dung_CV.Controllers
                 myCon.Open();
                 using (SqlCommand myCommand = new SqlCommand(query, myCon))
                 {
+                    myCommand.Parameters.AddWithValue("@id", id);
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
+        }
+
+        [Route("GetListEnrolmentByCompany/{id}")]
+        [HttpGet]
+        public JsonResult GetListEnrolmentByCompany(int id)
+        {
+            string query = @"SELECT *
+                            FROM Enrolment e
+                            JOIN Job j ON e.job = j.ID
+                            JOIN Company c ON j.company = c.ID
+                            JOIN Account a ON e.account = a.ID
+                            WHERE c.ID = 5";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myCommand.Parameters.AddWithValue("@id", id);
                     myReader = myCommand.ExecuteReader();
                     table.Load(myReader);
                     myReader.Close();
@@ -235,7 +264,7 @@ namespace API_Tuyen_Dung_CV.Controllers
         public JsonResult PutRanking(Enrolment erm)
         {
             string query = @"UPDATE Enrolment
-                    SET rank = @rank
+                    SET rank = @ranking
                     WHERE ID = @id";
             DataTable table = new DataTable();
             String sqlDataSource = _configuration.GetConnectionString("CV");
@@ -300,6 +329,30 @@ namespace API_Tuyen_Dung_CV.Controllers
             var fileName = Path.GetFileName(filePath);
 
             return File(fileBytes, "application/pdf", fileName);
+        }
+
+        [Route("GetListEnrolment")]
+        [HttpGet]
+        public JsonResult GetListEnrolment()
+        {
+            string query = "select Enrolment.ID, Enrolment.cv, Enrolment.state, Account.name as Accountname, Account.email as Accountemail, Account.phone_number as Accountphone_number," +
+                           "\r\njob.title as jobtitle, Job.job_des AS JobDescription, Enrolment.rank, company.company_name,Type_of_Job.type_name \r\nfrom Enrolment join Account on Enrolment.account = Account.ID\r\n " +
+                           "join Job on Enrolment.job = Job.ID JOIN Type_of_Job ON Job.job_type = Type_of_Job.ID join Company on job.company = Company.ID";
+            DataTable table = new DataTable();
+            String sqlDataSource = _configuration.GetConnectionString("CV");
+            SqlDataReader myReader;
+            using (SqlConnection myCon = new SqlConnection(sqlDataSource))
+            {
+                myCon.Open();
+                using (SqlCommand myCommand = new SqlCommand(query, myCon))
+                {
+                    myReader = myCommand.ExecuteReader();
+                    table.Load(myReader);
+                    myReader.Close();
+                    myCon.Close();
+                }
+            }
+            return new JsonResult(table);
         }
 
     }

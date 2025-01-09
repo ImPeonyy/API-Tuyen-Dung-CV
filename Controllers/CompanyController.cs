@@ -11,7 +11,7 @@ namespace API_Tuyen_Dung_CV.Controllers
     public class CompanyController : ControllerBase
     {
         private readonly IConfiguration _configuration;
-        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\company_logo";
+        private readonly string _storageFolder = @"D:\Study\WorkSpace\Job_Recruitment\src\assets\img\company_logo";
         public CompanyController(IConfiguration configuration)
         {
             _configuration = configuration;
